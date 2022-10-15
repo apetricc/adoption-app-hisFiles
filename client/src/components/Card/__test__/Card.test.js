@@ -1,84 +1,94 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react"
+import Card from "../Card"
 import userEvents from "@testing-library/user-event";
-import Pets, { PetsContext } from "../../Pets/Pets";
-import Card from "../Card";
-import cats from "../../../mocks/cats.json";
 
+//set up a var with default props for our Card components:
 const cardProps = {
-  name: "Sydney",
-  phone: "111-111-1111",
-  email: "laith@hotmail.com",
-  image: {
-    url: "https://images.unsplash.com/photo-1548247416-ec66f4900b2e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8Y2F0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=1000&q=60",
-    alt: "cute cat",
-  },
-  favoured: false,
-  updateFavourite: () => {},
-  index: 1,
-};
-
-const renderCardComponentWithProvider = (props) => {
-  render(
-    <PetsContext.Provider value={{ cats, setCats: () => {} }}>
-      <Card {...props} />
-    </PetsContext.Provider>
-  );
-};
+    name: "Sydney",
+    phone: "555-555-5555",
+    email: "drew@gmail.com",
+    image: {
+        url: "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_2x1.jpg", alt: "cute cat"
+    },
+    favoured: false
+}
 
 describe("Card", () => {
-  test("should show name of cat", () => {
-    renderCardComponentWithProvider(cardProps);
+    test("should show name of cat", () => {
+        //render the Card & pass in some props
+        render(
+            <Card
+                //destructure the props from a variable instead of manually adding the props here:
+                {...cardProps}
+            />
+        )//render
+        expect(
+            screen.getByRole("heading", {
+                name: /sydney/i
+            })
+        ).toBeInTheDocument();
+    });
 
-    expect(
-      screen.getByRole("heading", {
-        name: /sydney/i,
-      })
-    ).toBeInTheDocument();
-  });
+    test("should show phone number for cat", () => {
+        render(
+            <Card
+                //if we want to rename one of the props, we do it like this:
+                {...cardProps}
+            //name: "newName"
+            />
+        )//render
+        expect(
+            // we can get this by role but we're trying getByText()
+            screen.getByText(/555-555-5555/i)).toBeInTheDocument();
+    });
 
-  test("should show phone number", () => {
-    renderCardComponentWithProvider(cardProps);
+    test("should show email for cat", () => {
+        render(
+            <Card
+                {...cardProps}
+            />
+        )//render
+        expect(
+            screen.getByText(/drew@gmail.com/i)).toBeInTheDocument();
+    });
 
-    expect(screen.getByText(/111-111-1111/i)).toBeInTheDocument();
-  });
+    test("should get the picture of cat", () => {
+        render(
+            <Card
+                {...cardProps}
+            />
+        )//render
+        //get the element by the alt text, then check that the element is the url in our Card component
+        expect(screen.getByAltText(/cute cat/i).src).toBe(cardProps.image.url);
+    });
 
-  test("should show email", () => {
-    renderCardComponentWithProvider(cardProps);
+    test("should show outlined heart", () => {
+        render(<Card {...cardProps} />);
+        expect(screen.queryByAltText(/filled heart/i)).not.toBeInTheDocument();
+        expect(screen.getByAltText(/outlined heart/i)).toBeInTheDocument();
+    });
 
-    expect(screen.getByText(/laith@hotmail.com/i)).toBeInTheDocument();
-  });
+    test("should show filled heart", () => {
+        //use default props except overwrite the 'favoured' prop:
+        render(<Card {...cardProps} favoured = {true} />);
+        expect(screen.queryByAltText(/outlined heart/i)).not.toBeInTheDocument();
+        expect(screen.getByAltText(/filled heart/i)).toBeInTheDocument();
+    });
 
-  test("should show image with correct src", () => {
-    renderCardComponentWithProvider(cardProps);
+    test("Should toggle heart status", () => {
+        render(<Card {...cardProps} />);
+        //first click should fill heart
+        userEvents.click(screen.getByRole("button"));
+        expect(screen.queryByAltText(/outlined heart/i)).not.toBeInTheDocument();
+        expect(screen.getByAltText(/filled heart/i)).toBeInTheDocument();
 
-    expect(screen.getByAltText(/cute cat/i).src).toBe(cardProps.image.url);
-  });
+        //2nd click should clear the heart
+        userEvents.click(screen.getByRole("button"));
+        expect(screen.queryByAltText(/filled heart/i)).not.toBeInTheDocument();
+        expect(screen.getByAltText(/outlined heart/i)).toBeInTheDocument();
 
-  test("should show outlined heart", () => {
-    renderCardComponentWithProvider(cardProps);
 
-    expect(screen.queryByAltText(/filled heart/i)).not.toBeInTheDocument();
-    expect(screen.getByAltText(/outlined heart/i)).toBeInTheDocument();
-  });
+    });
 
-  test("should show filled heart", () => {
-    renderCardComponentWithProvider({ ...cardProps, favoured: true });
+});//describe 'Card'
 
-    expect(screen.queryByAltText(/outlined heart/i)).not.toBeInTheDocument();
-    expect(screen.getByAltText(/filled heart/i)).toBeInTheDocument();
-  });
-
-  test("should toggle heart status", () => {
-    renderCardComponentWithProvider(cardProps);
-
-    userEvents.click(screen.getByRole("button"));
-
-    expect(screen.queryByAltText(/outlined heart/i)).not.toBeInTheDocument();
-    expect(screen.getByAltText(/filled heart/i)).toBeInTheDocument();
-
-    userEvents.click(screen.getByRole("button"));
-
-    expect(screen.queryByAltText(/filled heart/i)).not.toBeInTheDocument();
-    expect(screen.getByAltText(/outlined heart/i)).toBeInTheDocument();
-  });
-});

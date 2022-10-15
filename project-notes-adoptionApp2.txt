@@ -1,0 +1,556 @@
+project-notes-adoptionApp.txt
+
+made our boiler plate react app (in the current dir.) with:
+npx create-react-app adoption-app
+& created the github repository so we can work from different devices;
+
+We're using the udemy videos now, so this project/part starts on video 26 of the course:
+"The React Testing Library Bootcamp - The Developer Guide"  by Laith Harb
+https://www.udemy.com/course/the-react-testing-library-bootcamp/learn/lecture/29987370#overview
+
+So for time stamps I will have to say the video, then the time if needed, but I can try to wrap up each video;
+
+~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~
+____________________________________________________________________
+
+about the app:
+more complicated than the signup-form app, so we'll learn more about RTL
+
+Users will be able to look at the different cats, see the cats name, picture, and contact info (phone & email)
+if they're insterested in adopting the cat; They also can 'favorite' cats they like by clicking a little heart
+icon that gets filled out if they click on it (can favorite multiple cats);
+Users can filter the cats by gender (M/F), or by favorites/!favorites, or a combo of the two filters;
+
+Addtionally, the data that is presented in the 'cat cards' won't be coming from our react app directly,
+the data will come from http requests to another server;
+We can inspect the page in our browser.. (maybe just in chrome, which might rule out using my old ass MBAir, or maybe
+I can still do it if I use an old version of chrome and just don't go beyond local host on the outdated chrome..?)
+so inspect the page, go to network tab, refresh the page, you can find a request called 'cats' which shows data
+coming  back from a server;
+
+We'll also learn how to handle http requests in our RTL tests, which is good.
+
+~    ~    ~    ~    ~
+
+vid 27: Breakdown of App
+This is relatively large application so we can't just put all the code in the one App.js file like we did for the
+signup-form-app; We're going to have to split this app into multiple components;
+
+What are those components going to be? What will occur in those components?
+The most obvious component--> The 'card' component;
+1. "Card" component will display each individual cat;
+This card component will take in some props (probably the best way to get the data into the component):
+Name of cat
+contact phone number
+contact email
+Favored or !Favored       --> and the card will take in these props, but other than that, it will be a
+straightforward component
+
+2. "Cards" component is where all the individual "Card" components will live;
+Basically a big component to house the smaller components--> Cards is parent of Card in heirarchy;
+Multiple 'card' components will live in larger 'cards' component, not sure how I can restate this;
+-"Cards" will get an array of objects that will contain information about the cats, and it will Map over them,
+and forEach Object, it's going to render a "Card" component; so also relatively simple, right?
+
+3. "Filter" component which will allow users to filter the cats
+
+4. Overall component to group everything together will be called the "Pets" component
+'Pets' will be responsible for making the http requests to our server in order to get the
+'cat data'. Once it gets the 'cat data' it will filter it based on the parameters passed
+from the 'Filter' component, then it will pass that filtered data to the 'Cards' component,
+which will render that data as individual 'Card' components;
+
+The web app/page will be structured something like this crude ascii diagram:
+
+_________________________________________________
+|             ___________________               |      ◄|'Pets'
+| 'Filter'    |  {Card}  {Card} |   ◄ 'Cards'   |      ◄|
+|    ▼        |  {Card}  {Card} |               |      ◄|
+|             |  {Card} ...     |               |      ◄|
+|             |_________________|               |      ◄|
+|_______________________________________________|
+
+
+Where do we start to build all of these things? ?  We will start with the most basic component/element
+of our app, which is the 'Card'--in the next video;
+
+(video:)
+#28
+We'll start by running npx create-react-app adoption-app if we haven't already done so,
+@30 sec:
+then we'll make a 'components' folder w/in the src directory,
+& this where all our components are going to live;
+
+mkdir src/components/Card
+touch Card.js
+
+we add a default function to return an empty div at this point;
+#28 @1.28 --> discussion of organinzing the test files for a project;
+We can put our .test files anywhere and Jest will detect them, but a common convention
+is to create a new folder (within the folder that has the files we want to test) called "__test__"
+pwd --> components/Card
+mkdir __test__
+touch Card.test.js
+-----
+add our imports to the new 'test' file so we can access the 'Card' component file, and
+also a couple things from @testing-library/react -- render & screen
+'render' so we render our virtual DOM for testing it,
+'screen' so we can access components in the DOM -- see the RTL documentation:
+https://testing-library.com/docs/queries/about/#screen
+
+I think 'screen' basically acts as a shortcut for 'document.body' (?) & probably adds some extra functionality;
+
+#28 @2.55  -- so what do we want to test?
+first let`s test that we're rendering the name, email, & phone into a Card component;
+
+We also want to remove the default test file "App.test.js" just to remove that clutter
+and also the default test that will pass
+
+we would run:
+npm run test
+
+but that command wasn't recognized, so I ran: 'npm i' to see if that will correct the issue;
+tried again and got a different error: "Test suite failed to run"
+Maybe he will address this in the video?
+
+It seems like a npm/node version issue; Since I created on the MBA, I don't think it's using the same version
+as my dev MBP;
+Maybe I need to create-react-app again on the dev MBP;
+I tried re-scaffolding the app from my dev MBP, but still got the same error;
+Ultimately I had to run this command to explicitly install a specific version of jest-watch-typeahead:
+npm i -D --exact jest-watch-typeahead@0.6.5
+
+although I wonder if it would work if I simply said "npm i jest-watch-typeahead"
+anyway, we're back in business;  We don't have any asserts yet, so nothing to pass/fail;
+
+Part of the problem was that we weren't exporting the Card component correctly;
+we had:  export default Card = () => { ...}
+we needed to break it up into: const Card = () => {... };  export default Card;
+
+* interesting note-- the test works when Card.js is like this:
+
+const Card = () => {
+    return <div></div>;
+};
+
+export default Card;
+
+******************
+But NOT like this:
+******************
+export default Card;
+const Card = () => {
+    return <div></div>;
+};
+******************
+& NOT like this:   (this one makes sense, b/c it's reading it all as one line essentially)
+******************
+const Card = () => {
+    return <div></div>;
+}
+export default Card;
+
+*****************************
+
+He's using unsplash.com for his cat images, but I can't seem to access the pictures there, maybe just on the VPN, idk,
+but have to gather some cat image urls from google images; Here are some cat image URLs:
+https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_2x1.jpg
+https://cdn.theatlantic.com/thumbor/W544GIT4l3z8SG-FMUoaKpFLaxE=/0x131:2555x1568/1600x900/media/img/mt/2017/06/shutterstock_319985324/original.jpg
+https://www.humanesociety.org/sites/default/files/styles/1240x698/public/2020-07/kitten-510651.jpg?h=f54c7448&itok=ZhplzyJ9
+http://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg
+https://cdn.britannica.com/39/7139-050-A88818BB/Himalayan-chocolate-point.jpg
+https://media.npr.org/assets/img/2021/08/11/gettyimages-1279899488_wide-f3860ceb0ef19643c335cb34df3fa1de166e2761-s1100-c50.jpg
+https://www.fundacion-affinity.org/sites/default/files/los-10-sonidos-principales-del-gato-fa.jpg
+https://upload.wikimedia.org/wikipedia/commons/b/bc/Juvenile_Ragdoll.jpg
+https://253qv1sx4ey389p9wtpp9sj0-wpengine.netdna-ssl.com/wp-content/uploads/2022/09/08_22_Winery_Cats_HERO_GettyImages_475462958_1920x1280.jpg
+https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/WALN4MAIT4I6VLRIPUMJQAJIME.jpg
+
+We're passing some props into our mocked 'Card' component:
+name
+phone
+email
+image
+favoured
+
+We manually put those props into a rendered div in our test, so then we expect those props to be in the DOM/screen
+
+#28 @9min we put in our first test, and mine passes, but his failed... he said it should fail... not sure why that is;
+uh... ok, now it's failing.  no idea what this is about but we're up to speed with him at 9min;
+later...
+I tried running the test again and it said 'no new tests related to changed files since last commit'
+so it wouldn't run the test I we had; The message also said to 'press a to run all tests' so I did & that runs them;
+
+copy first test to use as scaffolding for new test;
+If we're copying stuff though, should we add the Card to a 'beforeEach' ?
+That could be a problem though, b/c our Card component has some props in it, & if we put it in a 'beforeEach' hook,
+those props would always be the same, and we might not want that;
+-So what's the solution?   --> We can make a function/variable to create our Card component <---
+We made a const called 'cardProps', and we add that to our 'Card' (while destructuring it to get all the props)
+
+//if we want to rename one of the props, we do it like this:
+render(
+            <Card
+                {...cardProps}
+                name: "newNameOverwritesCardProps"
+            />
+        )//render
+
+-           -           -           -           -
+
+We added the tests for name, phone, & email;
+Challenge--> make the test to test for the image!  Then proceed to #29 video;
+
+-----------------------------------------------------
+#29 do the challenge: create test for image src;
+I think I can use the alt text, and I can use--> expect(image).toHaveAttribute('src', 'the_url')
+#30--solution:
+...so kind of cool, he did both of the things I tried to do in one 'expect'
+// get by alt text gives us the element...
+// then we look at that element and see that it matches what we have in our Card component,
+// which is coming from the cardProps object
+// which has a property called 'image', which has a property called 'url'
+
+--->   expect(screen.getByAltText(/cute cat/i).src).toBe(cardProps.image.url);
+
+*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
+* onto #31   *            *            *            *            *
+*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
+Now we're going to write the minimum amount of code we have to in order for
+ our tests to pass;
+1st thing we'll do is pass in some props to our Card, so we put {} in the () to pass in an object aka 'stuff';
+
+We added some divs and classNames for the divs, and put variables for each of the fields that will go in a Card component;
+We also went and downloaded his CSS file and copied it into a new CSS file
+in the components/Card folder.  His file is on github:
+https://raw.githubusercontent.com/harblaith7/React-Testing-Library-Udemy-Course/main/02-Cat-Adoption-App/client/src/components/Card/Card.css
+
+So we have all our 'Card' tests passing and we added a CSS file--move on to #32
+
+#32:  now we need to add the tests for the heart/favorite aspect of the Card component;
+When we 1st click it should fill the heart, if we click again it should clear the heart;
+
+#33: red green testing style--> we wrote the tests 1st, they are initially red/failed, & now
+we will write the code to make them pass green/pass
+Part of doing this means we have to DL the 2 svg files for heartFilled.svg
+& heartOutlined.svg  & put them in a new folder 'svgs' in our ~/src folder;
+
+https://github.com/harblaith7/React-Testing-Library-Udemy-Course/blob/main/02-Cat-Adoption-App/client/src/svgs/heartFilled.svg
+
+https://github.com/harblaith7/React-Testing-Library-Udemy-Course/blob/main/02-Cat-Adoption-App/client/src/svgs/heartOutlined.svg
+
+then we have to import them into our Card.js file like so:
+import heartFilled from "../../svgs/heartFilled.svg"
+import heartOutlined from "../../svgs/heartOutlined.svg"
+
+@3.08 of #33, he has 6 tests passed & 1 fail;
+I have 3 failing 4 passed.
+installed meld to compare: https://yousseb.github.io/meld/
+
+after some serious formatting and stuff, I found that I had the tests for
+the hearts using "getAllByAltText" instead of "getByAltText" !!
+vsCode autofilling messed me up there & i didn't notice it;
+Now we're on the same page with Laith again;
+
+Our only failed test is testing the state of 'favoured' which we don't have a state yet,
+so now we'll create a local state to store the status of 'favoured'
+
+How did we do this?
+* we created a const with "useState" to store the state that is an array with 2 values;
+* We have to have "useState" to get the interaction from the user;
+* We set a ternary statement inside the button, so if "isFavoured" is true, we have the heart, and if not the outlined heart;
+* onClick we call a function which toggles the value ...
+... but why do we even need the 2nd value in this array..? And we're calling "setIsFavoured" like a function inside another
+function called "toggleFavoured" ... I don't understand this part;
+Maybe we can remove setIsFavoured?
+    //setting up a localState w/ initial value from our props that came in with anon func
+
+    const[isFavoured, setIsFavoured] = useState(favoured);  <------ this is just how you use the `'useState' hook`
+    const toggleFavoured = () => {
+        setIsFavoured(!isFavoured);
+    };
+    return <div className="card">
+        <div className="card-header">
+            <img src={image.url} alt={image.alt} className="card-img"/>
+            {/* in the card-header we use a ternary expression to show the right heart svg */}
+            <button className="heart" onClick={toggleFavoured}>
+                {isFavoured ? (
+                    <img src={heartFilled} alt="filled heart" />
+                ) : <img src={heartOutlined} alt="outlined heart" />}
+            </button>
+        </div>
+
+I tried this which didn't work, I guess I need to read about toggling state onClick with javascript;
+    const toggleFavoured = () => {
+        if (isFavoured) isFavoured = false;
+        else isFavoured = true;
+    };
+
+I think I really need to understand this, I'll try to find something on this
+maybe I need to read/try this:
+https://designcode.io/react-hooks-handbook-toggle-a-state
+
+it's called the "useState hook" and this is just how it's done;
+maybe I can find some more examples, but this is just the syntax;
+
+-           -           -           -           -           -           -           -           -
+-           -           -           -           -           -           -           -           -
+
+@34:   time for some manual testing & actually use our code in the App.js file;
+
+go to App.js and remove all the stuff in the function App() "return" area and the App.css import;
+we put a div for Card in the return statement, and we pass in the props we used in our Card.test.js file;
+WE have to update the formatting to use "=" instead of ":" and remove the commas;
+@1.18 of 34
+We want to start the app, so we do "npm run start" from our terminal;
+we needed to add the import for Card.css to Card.js for the styling to work though;
+We also need to add the box shadow to the css file for .card maybe;
+Now we have our Card component and the heart is behaving as expected, so that's good!
+
+@35: Heading into creating the tests/code for the "Cards" component, & a big concept that we'll
+cover is querying for multiple components, I'd guess to test that we have multiple "Card" components rendered?
+@36: getting into it;
+WE want to remove the "Card" component we put into the App.js file since this isn't the way we want the final
+product to display anyway, it was just for manual debugging purposes;
+-mkdir ~/src/Cards
+-touch Cards.js
+
+-mkdir ~/src/Cards/__test__
+-touch Cards.test.js
+
+when we test the 'Cards' component, we will also test anything that it renders, this is as opposed to
+what is called 'shallow rendering' which would only render the parent component and not the children;
+Shallow rendering isn't really a thing in RTL though, and it's probably for the best according to Laith;
+
+We start writing the tests after adding imports for RTL and Cards-->
+import { render, screen } from "@testing-library/react"
+import Cards from "../Cards"
+
+we also need some test data, so we can mkdir ~/src/mocks && touch cats.json
+or just DL his file and make the directory for it;
+I made directory and file and copy pasted raw from github:
+https://raw.githubusercontent.com/harblaith7/React-Testing-Library-Udemy-Course/main/02-Cat-Adoption-App/client/src/mocks/cats.json
+
+in our first test we first render()  the Cards component --> render(<Cards />)
+and we pass in the cats array (as 'cats') as our data --> render(<Cards cats={cats}/>)
+--now the question is--> how can we query for the 'Card' components that will be inside our 'Cards' component??
+It's probably best to query for the top level component --> <div className = "card">
+... BUT, we can't really query just for a div like that (unless we gave it an id or something?);
+what we can do is change this "div" into an "article" which gives us some better functionality,
+and lets us query by role, and use "article" as the role;
+
+screen.getAllByRole("article")
+
+and b/c there are 5 elements in the 'cats' array (our mocked data),
+we can expect there to be 5 'Card' components or 5 'article' components -->
+--> expect(screen.getAllByRole("article").length).toBe(5);
+
+Our test won't pass yet, but we can check that it is failing by running
+--> npm run test
+
+@ #37  make the multiple 'Card' test pass in our code;
+aka build out the "Cards" component code;
+
+We basically iterate over the 'cats' json array/map (?)
+and use the fields as properties for each 'Card' component we create;
+
+create a Cards.css file in ~/components/Cards
+then we need to import the Cards.css file into "Cards.js" to use the styles there;
+
+@38 manual testing of the "Cards"
+go to our App component --> "App.js"
+& render our "Cards" component;
+
+--> <Cards cats={cats}></Cards>
+we have to put it in our "App" function, inside the return statement inside a div:
+function App() {
+  return (
+    <div>
+      <Cards cats={cats}></Cards>
+    </div>
+  );
+}
+
+and also we have to import both "Cards" & "cats" -->
+import Cards from './components/Cards/Cards';
+import cats from "./mocks/cats.json"
+
+then we can check out the component by using:
+npm run start
+
+& we can see all the cat cards being rendered with the favorite buttons & pictures and info;
+For some reason it is saying "return" at the top of my page though, and I don't know why;
+I opened in chrome to check & it's the same as firefox...
+maybe I have an extra 'return' statement somewhere...
+
+@39  more complex user events --  --  --  --  --  --  --  --  --  --  --
+now we are going to add the filtering component to our project
+it should be pretty easy to do afa (as far as) the tests are concerned,
+we just need to test that the selector/drop down component changes when we select a different value for it;
+
+These tests will require us to use a new type of user input for when the user
+chooses from the drop down menu (we have just used click & type so far)
+mkdir ~/src/components/Filter
+touch Filter.js
+mkdir __test__
+touch Filter.test.js
+
+create assert/expect that will test that the intial value of drop-down/select component is "any"
+/**
+ * how the select will look (note the initial value should be "any"):
+ * <select name="" id="">
+ *  <option value="any">Any</option>
+ *  <option value="favourite">favourite</option>
+ *  <option value="not favourite">not favourite</option>
+ * </select>
+ */
+
+We did a bunch of stuff, mainly just adding 2 'select' html elements
+where we can choose favoured/not favoured && male/female
+for which we wrote the tests FIRST, of course; We haven't integrated into the app yet;
+---   ---   ---   ---   ---   ---   ---   ---   ---   ---   ---
+@v41.
+
+we're moving on to the "Pets" component which houses all the other components;
+So far we have made all the individual components, but they are all separate at this point;
+Bringing them all together & then testing them all together is non trivial
+1. the pets component is going to be making http requests to get 'cats' data;
+2. we're going to get that data back, then give it to the 'Cards' component;
+3. getting this data is an asynchronous request, so we have to know how to deal with that in our tests;
+4. we have to test multiple components--how these components work together aka: "integration testing" (we only tested on their own before aka "unit testing");
+5. We'll start with the server side aspect, then we'll move on to the integration part;
+
+@v42:
+To make HTTP requests, we need a server.. but we're not building one for this course (we did in the nestJS crash course though)
+but we still need a server of some kind; He attached a zip file to the video, DL & unzip it & put it in the same directory as the 'client'
+I think that is where the folder is for the 'cat-adoption-app' (?)
+We actually need to move all our current files & folders into a new folder called "client"
+Then we need to create a new folder called 'server' and unzip this thing in there;
+I did this and the 'client' stuff still works with --> 'npm run start'
+
+cd into the 'server' dir & do an "npm i"
+
+then we don't run 'npm run start' here, we do:
+ "node index"
+
+ which I am not familiar with but looks like it's telling node to run the "index" file--> "index.js"
+ running 'node index' gives us -->       "listening"        back in the terminal  (where is it listening? which port?)
+see the "index.js" file's app.listen function:
+
+app.listen(4000, () => {
+  console.log("listening");
+});
+
+we can open a browser and go to localhost:4000  & should see an error from the server--> "cannot GET /"
+but if we go to http://localhost:4000/cats
+we should get a big JSON array of 'cat' data; 👍
+
+so what we're going to do is to make a request to localhost:4000/cats to get our 'cat' data for our App;
+Since this class/tutorial is about react testing library, we are kind of skirting TDD here,
+normally you would write the tests first, & then the implementation, but just this once we are going
+to already have the implementation, & write the tests after 😉
+
+----    ----    ----    ----    ----    ----    ----    ----    ----    ----    ----  --
+@v43 -- "fetching data from our server"     ----    ----    ----    ----    ----  --  --
+
+Now we'll start creating the "Pets" component;
+
+cd ~/client/src/components
+mkdir Pets
+touch Pets.js
+
+started writing some code--added divs in the Pets.js file;
+touch Pets.css  for styling this file;
+then we have to import the .css file into Pets.js;
+next-- we need to show it (Pets.js)  the "Filter" and the "Cards"
+so we create a <div> for each of those & add imports for them each;
+THEN inside the "Cards" we need to pass in the "cats"
+
+we want to check that we didn't break anything yet, so cd to client/
+and run:
+npm run start
+
+it just runs what we had before, & that's b/c we need to tell our "App.js"
+to render/use the "Pets" component --> that's going to be the only component that we
+render in our App.js
+
+If we change our App.js to only render this:   <Pets />  we get some errors & nothing renders;
+What we can do to make sure our App is doing something, is to just pass in "cats" as an
+object with an empty array, like this:
+<Cards cats={[]} />
+
+now our App will render at least the select component...
+but without any styling.
+So now we go to bootstrap.com
+https://getbootstrap.com/docs/5.2/getting-started/introduction/
+& copy the "CDN" link for CSS:
+https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css
+
+and add this to our index.html file:
+<!-- link for bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+
+that will style our 'select' component, and maybe some other stuff...?
+
+we also add the import for the mocks/cats.json file to "Pets.js" and use that so we can see the component working;
+It is working, although there's no gap b/t the 'select' and the 'cards' but we will fix that later;
+
+-Next we want to make an HTTP request to get the 'cats' data instead of hard coding it from the /mocks folder;
+TO do this, we will axios!!
+You could use 'fetch' but axios makes http requests easier and is preferred by most & ∴ is more common;
+so we have to 'npm i axios' inside the client directory;
+& in 'Pets.js' we must add the import to use it there, ofc:
+import axios from "axios"
+
+cut everything from the 'Pets' function & put into a return statement;
+remove the 'cats' from /mocks import and var
+so we can create a useState hook again! with [cats, setCats]
+and we'll have an async method called fetchCats!  so much stuff happening now;
+
+holy hell, a lot of stuff;
+Setting up that async method, a useState hook for the cats,
+axios.get to get the cats data from localhost:4000/cats
+and a new hook---> the "effect" hook in react;
+see:
+https://reactjs.org/docs/hooks-effect.html
+
+we commented out the 'Cards' component from the 'Filter' div b/c it might error out right now,
+and NOTE, we need to have our node server up,
+so open another terminal window/tab, cd to /server and run:
+node index
+
+& we run "npm run start" from the 'client' folder and look at our browser;
+Then we can look at our app & inspect the console to see that we have data coming! Pretty cool;
+
+since we're getting data we can uncomment the 'Cards' component from 'Filter' component/div
+and we should be getting our cats data to populate some 'Card' components in our App, which it is!
+👍    👍
+
+now we want to write a t'est that is identical to our 'Cards' test we did before, but now
+we need to test it inside the 'Pets' component, and we're also using an async http request,
+so we'll have to go over the issues that will come up trying to do this in the next section;
+
+= _ = _ =_= _ = _ =_ = _ =_= _ = _ =_ = _ =_= _ = _ =_ = _ =_= _ = _ =_ = _ =_= _ = _ =
+
+@v44 - 'writing a flawed test'
+
+finally got back going... cloned his repo and pasted in my files and it works for some reason;
+somehwere along the line I got a different module or did something wrong idk...
+anyway, in this video we wrote a test that is relying on our node server running,
+that's a big no no first of all; 2nd of all... idk, he said it's wrong;
+
+= _ = _ =_= _ = _ =_ = _ =_= _ = _ =_ = _ =_= _ = _ =_ = _ =_= _ = _ =_ = _ =_= _ = _ =
+
+
+
+
+
+
+
+~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~
+____________________________________________________________________
+
+∴   ↓   →   ←   ↔    ▲    ▼    ►    ◄   👍   😉
+
+his repository:
+https://github.com/harblaith7/React-Testing-Library-Udemy-Course
+

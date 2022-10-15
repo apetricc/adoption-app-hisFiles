@@ -1,65 +1,86 @@
-import "./Pets.css";
-import Filter from "../Filter/Filter";
-import Cards from "../Cards/Cards";
-
-import axios from "axios";
-import { useState, useEffect, createContext } from "react";
-
-export const PetsContext = createContext({
-  cats: [],
-  setCats: () => {},
-});
+import "./Pets.css"
+import Filter from "../Filter/Filter"
+import Cards from "../Cards/Cards"
+import cats from "../../mocks/cats.json"
+import axios from "axios"
+import { useEffect, useState } from "react"
+//@6.14 of v43 he is doing the axios install / import
 
 const Pets = () => {
-  const [cats, setCats] = useState([]);
-  const [filteredCats, setFilteredCats] = useState([]);
-  const [filters, setFilters] = useState({
-    gender: "any",
-    favoured: "any",
-  });
+
+  const [cats, setCats] = useState([])
 
   const fetchCats = async () => {
     const response = await axios.get("http://localhost:4000/cats");
-    setCats(response.data);
-    setFilteredCats(response.data);
-  };
+    setCats(response.data)
+  }
 
   useEffect(() => {
-    fetchCats();
-  }, []);
+    fetchCats()
+  }, [])
 
-  useEffect(() => {
-    let catsFiltered = [...cats];
-    if (filters.gender !== "any") {
-      catsFiltered = catsFiltered.filter(
-        (cat) => cat.gender === filters.gender
-      );
-    }
-    if (filters.favoured !== "any") {
-      catsFiltered = catsFiltered.filter((cat) => {
-        console.log(
-          cat.favoured,
-          filters.favoured,
-          cat.favoured === filters.favoured
-        );
-        return (
-          cat.favoured === (filters.favoured === "favoured" ? true : false)
-        );
-      });
-    }
-    setFilteredCats(catsFiltered);
-  }, [filters]);
-
+  console.log(cats);
   return (
     <div className="container">
       <div className="app-container">
-        <PetsContext.Provider value={{ cats: filteredCats, setCats }}>
-          <Filter filters={filters} setFilters={setFilters} />
-          <Cards />
-        </PetsContext.Provider>
+        <Filter />
+        <Cards cats={cats} />
       </div>
-    </div>
-  );
-};
 
-export default Pets;
+    </div>
+  )
+
+}
+
+
+
+
+
+
+
+export default Pets
+
+
+
+
+
+
+//what I had at video 44 but seems to be missing article
+// import "./Pets.css";
+// import Filter from "../Filter/Filter";
+// import Cards from "../Cards/Cards";
+// // import cats from "../../mocks/cats.json"
+// import axios from "axios"
+// import { useEffect, useState } from "react";
+
+
+// const Pets = () => {
+//     //this use state hook will start as an empty array
+//     const [cats, setCats] = useState([]);
+
+//     //we want to call this function on the initial render of the component
+//     const fetchCats = async () => {
+//         const response = await axios.get("http://localhost:4000/cats");
+//         setCats(response.data);
+//     };
+
+//     useEffect(() => {
+//         fetchCats()
+//     }, []);
+
+//     console.log(cats);
+
+//     return (
+//         <div className="container">
+//             <div className="app-container">
+//                 <Filter />
+//                 <Cards cats={cats} />
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default Pets;
+
+// //original test function:
+
