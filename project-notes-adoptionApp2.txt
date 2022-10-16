@@ -593,21 +593,79 @@ We need to install this (but I think it would already be there ?)
 it shoudn't hurt to do it again, (hopefully)  to do so: 
 npm install msw
 
+this changed the "package-lock.json" && 'package.json' files, 
+also the yarn.lock file 
+
+package-lock & package.json went from:
+ "msw": "^0.36.3"  -->   "msw": "^0.36.8",
+
+yarn.lock: 
+"@mswjs/cookies@^0.1.6":
+  "integrity" "sha512-A53XD5TOfwhpqAmwKdPtg1dva5wrng2gH5xMvklzbd9WLTSVU953eCRa8rtrrm6G7Cy60BOGsBRN89YQK0mlKA=="
+  "resolved" "https://registry.npmjs.org/@mswjs/cookies/-/cookies-0.1.6.tgz"
+  "version" "0.1.6"
+
+  "@mswjs/cookies@^0.1.7":
+  "integrity" "sha512-bDg1ReMBx+PYDB4Pk7y1Q07Zz1iKIEUWQpkEXiA2lEWg9gvOZ8UBmGXilCEUvyYoRFlmr/9iXTRR69TrgSwX/Q=="
+  "resolved" "https://registry.npmjs.org/@mswjs/cookies/-/cookies-0.1.7.tgz"
+  "version" "0.1.7"
 
 
+we import these into our Pets.test.js file: 
+import { rest } from "msw"    // to mock the rest component 
+import { setupServer } from "msw/node"   // to setup a 'fake' server for our tests aka a 'mock server' 
 
+I ran "npm run test" and everything is still working despite using a newer version of these packages, so that's good!
 
+//here we can specify what we want to mock, what endpoint to mock, & what to return
+const server = setupServer(
+    rest.get("http://localhost:4000/cats", (req, res, ctx) => {
+        ctx.status(200),
+        ctx.json(catsMock)
+    });
+)
 
+we want to mock http://localhost:4000/cats    which will be a GET request
+we could also mock POST or PUT or whatever we want with this package "MSW"
 
+1st param is 'what do we want to mock?'
+2nd param is 'what do we want to return from that mock?'
+    the callback has to take in a request, a response, and a context
+we need our mock data again so we have to import that to our test file & use it in the rest call response (it's called "res") ..? ; 
 
+    To use our mocked server we have to make our tests listen for it beforeEach test; 
+    & since we want to always use it we'll actually use a "beforeAll" hook here; 
+    then, after each test we want to reset the server essentially,
+    and finally, after we're done with our tests, we want to close the mock server; 
+* what that actually looks like: -->
 
+        beforeAll(() => server.listen())
+        afterEach(() => server.resetHandlers())
+        afterAll(() => server.close())
 
+as a sort of test of our mock server, we can remove one of the cats from the mockCats json array, 
+and then our test should fail... let's check that real quick;
 
+,
+  {
+    "id": 5,
+    "name": "Rachel",
+    "phone": "333-333-3333",
+    "email": "laith@hotmail.com",
+    "image": {
+      "url": "https://images.unsplash.com/photo-1561948955-570b270e7c36?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8Y2F0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
+      "alt": "beautiful cat"
+    },
+    "favoured": false,
+    "color": "grey",
+    "gender": "female"
+  }
 
+we removed this last element and our now fails!  Wow--cool
+So we don't have to acutally change our tests at all, it just uses the mocked server even if the real 
+server is running!  How about that?!   Pretty neat. 
 
-
-
-
+Now we can put this element back in the mocked data array so the test will pass; 
 
 
 
