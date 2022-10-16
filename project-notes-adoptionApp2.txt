@@ -537,8 +537,63 @@ finally got back going... cloned his repo and pasted in my files and it works fo
 somehwere along the line I got a different module or did something wrong idk...
 anyway, in this video we wrote a test that is relying on our node server running,
 that's a big no no first of all; 2nd of all... idk, he said it's wrong;
+we're not calling the server directly from the 'Pets.test.js' file, however, 
+we are RENDERING Pets.js, which is then calling the server... 
+so I'm not sure we want to be hitting our actual server to do our test; 
+Maybe this is just for learning purposes?  But he did say this was a FLAWED TEST; 
+anyway, the test will fail if the server isn't up; 
 
 = _ = _ =_= _ = _ =_ = _ =_= _ = _ =_ = _ =_= _ = _ =_ = _ =_= _ = _ =_ = _ =_= _ = _ =
+
+v45 "Issues with Making HTTP Requests in your Tests": 
+what was wrong with our test? 
+Like I said, the test is calling against the actual server; 
+The test is dependent on the server working correctly and returning the same data every time; 
+What if something went wrong with the server?  
+Say we add this: 
+throw an error in index.js before the "return res.json(cats)"
+we restart the server; 
+if we request to localhost:4000/cats at this point, we won't be getting any cats data; 
+∴  if we run our tests again, the one testing the 'Pets' component will fail, b/c it is 
+relying on the server being there to deliver some data; 
+
+Why is this bad?     
+1. We really want to test the front end logic, we're not trying to test
+the back end in this test case.  If we were we'd call it 'testServer' or whatever, 
+we are trying to test that our App is rendering some cards, not that the data is available 
+from the server... get it? 
+It adds other dependencies to our 'Pets' test; 
+
+It's also possible that the data on the server could change; 
+
+2. Calling our server costs money! $$$  ! ! ! 
+The more tests we run (& the more server requests we make), the more money it will cost us!
+
+3. Servers are slow (relatively).    If a single call takes a second or two, okay, doesn't sound too bad, 
+but over hundreds of tests, that would take loads of time and add up, adding time, and cost to our project!
+
+--> so what is the solution??  We can mock our server behavior! This will be faster and more effiecient, saving time & money!
+we'll go over it in the next video!  ;-)
+
+~        ~~        ~        ~~        ~        ~~        ~        ~~        ~
+_____________________________________________________________________________
+
+__v46. "Mocking HTTP requests with Mock Server Worker" ______________________
+
+_____________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
