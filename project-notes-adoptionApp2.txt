@@ -582,6 +582,17 @@ __v46. "Mocking HTTP requests with Mock Server Worker" ______________________
 
 _____________________________________________________________________________
 
+instead of making the actual HTTP request, it is better to mock the request and the data coming back
+we could mock axios (or fetch if we're using that)
+but according to Laith it's better to use 'mock service worker' than even mocking axios; 
+
+The guy who created RTL actually reccommends using MSW over mocking axios directly, so that's a 
+pretty strong endorsement!!
+
+We need to install this (but I think it would already be there ?)  
+it shoudn't hurt to do it again, (hopefully)  to do so: 
+npm install msw
+
 
 
 
