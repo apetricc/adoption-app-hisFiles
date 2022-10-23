@@ -668,6 +668,54 @@ server is running!  How about that?!   Pretty neat.
 Now we can put this element back in the mocked data array so the test will pass; 
 
 
+v47 -- 
+now we want to test multiple components working together; 
+so far we've really only tested the components in isolation... and we really need to test them working together; 
+The different components need to interact in the actual app, so we need to test them togheter; 
+
+* How do we do this?  
+We need to test the parent component--the 'Pets' component; 
+This is called 'integration testing' -- where we test how everything is working together; 
+
+v48 -- 
+writing the first integration test of our "Pets" component
+
+1st thing we'll test is 'filter by gender'
+This is easier than the other test we will need to write 'filter by favorites' 
+The reason for this is that the gender is a prop in each card that is static, 
+the favorites are not determined until the user clicks on stuff, so that adds another layer of complexity; 
+
+moving on to writing the test-->
+we add a beforeEach to render the 'Pets' component before each test; --> beforeEach(() => render(<Pets />)); 
+
+ok, now I'm getting an error with the exact same test code as he used...F#CK 
+""
+● Test suite failed to run
+
+    TypeError: Converting circular structure to JSON
+        --> starting at object with constructor 'HTMLElement'
+        |     property '__reactFiber$r2dibf7eha' -> object with constructor 'FiberNode'
+        --- property 'stateNode' closes the circle
+        at stringify (<anonymous>)
+
+      at messageParent (node_modules/jest-worker/build/workers/messageParent.js:34:19)
+
+must try it on his branch to see if something with my files again; 
+and again, it works in his project, so i don't know if it's a dependencies problem 
+or what;
+Another things that's interesting is that it will run when I have the server running, 
+so maybe I should just press on and hopefully it gets fixed with further coding; 
+---------
+v48 -- 
+
+
+
+
+
+
+
+
+
 
 
 ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~
