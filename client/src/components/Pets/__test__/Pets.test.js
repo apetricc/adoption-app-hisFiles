@@ -31,6 +31,11 @@ describe("Pets", () => {
 
     expect(screen.getAllByRole("article")).toStrictEqual([cards[1], cards[3]]);
   });
+  test("should filter for female cats", async () => {
+    const cards = await screen.findAllByRole("article");
+    userEvent.selectOptions(screen.getByLabelText(/gender/i), "female");
+    expect(screen.getAllByRole("article")).toStrictEqual([cards[0], cards[2], cards[4]]);
+  });
   // test("should filter for male cats", async () => {
   //   const cards = await screen.findAllByRole("article");
   //   userEvent.selectOptions(screen.getByLabelText(/gender/i), "male");

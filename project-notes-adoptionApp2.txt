@@ -706,10 +706,113 @@ or what;
 Another things that's interesting is that it will run when I have the server running, 
 so maybe I should just press on and hopefully it gets fixed with further coding; 
 ---------
-v48 -- 
+v49 -- 
+writing the logic to make our filter work--> 
+looking at what's happening so far:
+we have our 'cats' state (which is initially an empty array)
+then we have the useEffect that is called on render()
+that useEffect is calling fetchCats() which is getting the cats data from the server, 
+and setting that cats state as the response; 
 
+then we're passing the cats data to the 'Cards' component, and that is rendering each 'Card' comp.
 
+What we need to do is somehow filter the cats in the fetchCats/setCats stage, & pass in 
+whatever filtered cats we want to show to the part where we're rendering stuff; 
 
+Laith suggests we have another state for the filters;
+
+We add another useState with the needed 2 fields, and we'll use 'filters' & 'setFilters'
+This will be equal to an object with prop. "gender" initially set to 'any'
+And what we'll need to do is find a way to update this prop ('gender') any time 
+we change the filter component's value with the drop down list; 
+
+To do this we can pass the filters useState to the 'Filter' div component; 
+Then we need to 'accept' them in our Filter.js code, 
+b/c this is where the actual component is defined; 
+
+Then for the 'gender' 'select' component (select is what the drop down menu is called in html)
+we need to have an 'onChange' callback, (and maybe use 2-way binding ?) 
+we have a function, where we set the 'setFilters' value as whatever is in 'filters',
+but we replace the 'gender' prop. with whatever value that's coming in from the 'onChange' 
+like this: 
+<select name="gender" id="gender" className="form-select" onChange={(e) => {
+            setFilters({
+                ...filters,
+                gender: e.target.value,
+            });
+        }}>
+
+we added a console.log under where the 'filters' value gets assigned in 'Pets.js'
+and looked at/inspected the console from the browser (after launching our app)
+It updates the print out & ∴ the 'filters' value when we select male/female
+so that part is working--good; 
+The provenance of this value is something like this: 
+We have a Filter component/class defined
+in that Filter, we have the logic to update the value of 'gender' onChange; 
+We have our 'Pets' class/component which has a 'Filter' in it;
+In the 'Pets' component we also have a 'useState' logic where 'onChange'
+we udpate the value of the 'gender' property inside of setFilters,
+ which then goes into 'filters'...?  useState stuff is a little hard to 
+ follow completely from a to b, but you get the idea, right? 
+
+So when that filter gets clicked on, we want to update the 'cats'
+array, but NOT our original cats array, no no no, that is our 
+absolute truth array, we don't want to mess with that; 
+Laith calls it our "source of truth" .. not sure if that is a scientific term or not; 
+
+*    *    *    *    *    *    *    *    *    * 
+
+-I think this is a scientific term; 'source of truth'
+aka 'single source of truth'  aka 'SSOT'
+
+example: 
+starting array: 
+[male, female, male, female, female]
+if we filter for just males, then we'd have:
+[male, male]
+then if we filter for females after that, we won't find anything; 
+[]
+Then we just have an empty array, no males or females; 
+
+*    *    *    *    *    *    *    *    *    *
+
+We need a copy of the original array pretty much, where we can mess with the values etc; 
+We actually need to duplicate it each time we want to filter; 
+@3.30 of v49
+
+To do this we will need yet another state in Pets.js (!) So many states!
+We set up another 'useState' which will be an empty array,
+(exactly like our original useState [cats, setCats])
+like this:    const [filteredCats, setFilteredCats] = useState([]);
+
+we want to also set this to the cats data initially, just like the other one
+inside our fetchCats() function; 
+
+Then we want to pass in the 'filteredCats' to our 'Cards' component 
+so those are the only ones to get rendered, JUST LIKE WE WANTED!!
+It doesn't work yet though... 
+We need to actually filter those cats any time we have a change on the filters!
+
+So we'll add another 'useEffect' in Pets.js
+We start off defining our duplicate array of the cats --> 'catsFiltered'; 
+we have an IF statement, where if there is a filter selected, 
+we just pick the cats that match that filter; 
+then we call our 'useEffect' to setFilteredCats(catsFiltered) "set filtered cats to 'catsFiltered'"
+AND... I still need to do some more examples of useEffect b/c this is 
+very new syntax to me; 
+
+But our tests should pass now!  but we have a fail, I think we didn't import it; 
+Actually we just need to pass the props to our Filters test file... ; 
+We can do this in a beforeEach 
+
+He actually ran into the same error I had before "TypeError: Converting circular structure to JSON"
+and I didn't even have the female test in Pets.test.js, so that's why I didn't get it again; 
+I wonder if it will pass now without the server running ? 
+yup.
+
+ok, moving on to v50
+
+v50 -- 
 
 
 
@@ -721,7 +824,7 @@ v48 --
 ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~    ~
 ____________________________________________________________________
 
-∴   ↓   →   ←   ↔    ▲    ▼    ►    ◄   👍   😉
+∴   ●   ↓   →   ←   ↔    ▲    ▼    ►    ◄   👍   😉
 
 his repository:
 https://github.com/harblaith7/React-Testing-Library-Udemy-Course

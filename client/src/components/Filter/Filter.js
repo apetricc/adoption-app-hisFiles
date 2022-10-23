@@ -1,4 +1,4 @@
-const Filter = () => <div className="pet-filter-container">
+const Filter = ({filters, setFilters}) => <div className="pet-filter-container">
     <div className="filter-container">
         <label htmlFor="favourite">Favourite</label>
         <select name="favourite" id="favourite" className="form-select">
@@ -9,7 +9,12 @@ const Filter = () => <div className="pet-filter-container">
     </div>
     <div className="filter-container">
         <label htmlFor="gender">gender</label>
-        <select name="gender" id="gender" className="form-select">
+        <select name="gender" id="gender" className="form-select" onChange={(e) => {
+            setFilters({
+                ...filters,
+                gender: e.target.value,
+            });
+        }}>
             <option value="any">Any</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
