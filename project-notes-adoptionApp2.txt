@@ -151,7 +151,7 @@ const Card = () => {
 export default Card;
 
 *****************************
-
+cat data, my cat data          
 He's using unsplash.com for his cat images, but I can't seem to access the pictures there, maybe just on the VPN, idk,
 but have to gather some cat image urls from google images; Here are some cat image URLs:
 https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_2x1.jpg
@@ -813,6 +813,47 @@ yup.
 ok, moving on to v50
 
 v50 -- 
+now we have the logic for filter by gender, and we want to add logic for filter by 'favoured'/'not favored'
+It's a bit harder b/c we don't have any values until after the user clicks on the little heart buttons; 
+in other words--
+render the cards, select the cards we want to favorite, THEN we can filter for them; 
+Default behavior is if nothing selected then if we choose 'favoured' it will show no cards, 
+if we choose 'not favoured' it will show them all (b/c no cats/cards have been 'favoured')
+
+our test with notes: 
+  
+  test("should filter for favoured cats", async () => {
+    //first we need to find all the cards
+    const cards = await screen.findAllByRole("article");
+  //  then we need to start clicking favoured on some of the cards
+  //  how do we do that?  You might think, 'easy, we just find the button for the cards we want to favour'
+  //  but how do we find the button for a specific card, Holly for example? 
+  //  we can't getByRole("button")  b/c that will return multiple buttons --> error
+  //  we could try something like --> 
+  //  const buttons = await screen.findAllByRole("button");  
+  //  buttons[0]  to access the specific buttons... (& this would work) BUT... what if we added more buttons to our app later? 
+  //  so what do we WANT to do?  We want to look at a card and find the button within it... and we can do just that with RTL   
+ //  but how?    We can use "within" from RTL
+
+  // this will get us the "button" element that is 'within' the component we passed --> cards[0] a JSX element/component  
+    // const btnForFirstCard = within(cards[0]).getByRole("button");
+    // const btnForFourthCard = within(cards[3]).getByRole("button");
+    // //now we just need a userEvent to click on those buttons
+    // userEvent.click(btnForFirstCard);
+    // userEvent.click(btnForFourthCard);
+    // we can just skip the variables and use those within() calls inside our userEvent()`s 
+    // the fact that we find a card, then find an element within that card, means we are
+------------   ------------   ------------   ------------   ------------   ------------
+    --- using a NESTED QUERY for RTL --- >    within(cards[0]).getByRole("button")
+------------   ------------   ------------   ------------   ------------   ------------
+    userEvent.click(within(cards[0]).getByRole("button"));
+    userEvent.click(within(cards[3]).getByRole("button"));
+    userEvent.selectOptions(screen.getByLabelText(/favourite/i), "favoured");
+    expect(screen.getByRole("article")).toStrictEqual(cards[0], cards[3]);
+  });
+
+v51 --
+now we will add the logic to make our favoured/not favoured tests pass 
 
 
 

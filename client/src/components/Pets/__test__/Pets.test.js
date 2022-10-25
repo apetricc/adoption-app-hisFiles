@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import Pets from "../Pets"
 import { rest } from "msw"
 import { setupServer } from "msw/node"
@@ -36,21 +36,27 @@ describe("Pets", () => {
     userEvent.selectOptions(screen.getByLabelText(/gender/i), "female");
     expect(screen.getAllByRole("article")).toStrictEqual([cards[0], cards[2], cards[4]]);
   });
-  // test("should filter for male cats", async () => {
-  //   const cards = await screen.findAllByRole("article");
-  //   userEvent.selectOptions(screen.getByLabelText(/gender/i), "male");
-  //   // we don't need this as we can access it directly in the virtual DOM
-  //   const maleCards = screen.getAllByRole("article");
-  //   //then we'll assert that all the cards we got are 'male' cards
-  //   expect(maleCards).toStrictEqual([cards[1], cards[3]]);
-  //   console.log({ cards });
-  // });
+  
+  test("should filter for favoured cats", async () => {
+    //first we need to find all the cards
+    const cards = await screen.findAllByRole("article");
+    // then we need to start clicking favoured on some of the cards with a nested query:  
+    userEvent.click(within(cards[0]).getByRole("button"));
+    userEvent.click(within(cards[3]).getByRole("button"));
+    userEvent.selectOptions(screen.getByLabelText(/favourite/i), "favoured");
+    expect(screen.getByRole("article")).toStrictEqual(cards[0], cards[3]);
+  });
 
-  // test("should filter for female cats", async () => {
-  //   const cards = await screen.findAllByRole("article");
-  //   userEvent.selectOptions(screen.getByLabelText(/gender/i), "female");
-  //   expect(screen.getAllByRole("article")).toStrictEqual([cards[0], cards[2], cards[4]]);
-  // });
+  test("should filter for not favoured cats", async () => {
+    //first we need to find all the cards
+    const cards = await screen.findAllByRole("article");
+    // then we need to start clicking favoured on some of the cards with a nested query:  
+    userEvent.click(within(cards[0]).getByRole("button"));
+    userEvent.click(within(cards[3]).getByRole("button"));
+    userEvent.selectOptions(screen.getByLabelText(/favourite/i), "not favoured");
+    // this should return every other card that we didn't 'favourite'
+    expect(screen.getByRole("article")).toStrictEqual(cards[1], cards[2], cards[4]);
+  });
 
 });
 

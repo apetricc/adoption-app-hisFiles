@@ -5,7 +5,7 @@ const cats = [
     phone: "111-111-1111",
     email: "jamal@hotmail.com",
     image: {
-      url: "https://images.unsplash.com/photo-1529778873920-4da4926a72c2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTJ8fGNhdHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60",
+      url: "https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/WALN4MAIT4I6VLRIPUMJQAJIME.jpg",
       alt: "beautiful cat",
     },
     favoured: false,
@@ -18,7 +18,7 @@ const cats = [
     phone: "222-222-2222",
     email: "ethan@hotmail.com",
     image: {
-      url: "https://images.unsplash.com/photo-1536590158209-e9d615d525e4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTl8fGNhdHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60",
+      url: "https://upload.wikimedia.org/wikipedia/commons/b/bc/Juvenile_Ragdoll.jpg",
       alt: "beautiful cat",
     },
     favoured: false,
@@ -31,7 +31,7 @@ const cats = [
     phone: "333-333-3333",
     email: "laith@hotmail.com",
     image: {
-      url: "https://images.unsplash.com/photo-1606214174585-fe31582dc6ee?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjB8fGNhdHxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60",
+      url: "https://www.fundacion-affinity.org/sites/default/files/los-10-sonidos-principales-del-gato-fa.jpg",
       alt: "beautiful cat",
     },
     favoured: false,
@@ -44,7 +44,7 @@ const cats = [
     phone: "444-444-4444",
     email: "gather@hotmail.com",
     image: {
-      url: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8Y2F0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
+      url: "https://media.npr.org/assets/img/2021/08/11/gettyimages-1279899488_wide-f3860ceb0ef19643c335cb34df3fa1de166e2761-s1100-c50.jpg",
       alt: "beautiful cat",
     },
     favoured: false,
@@ -57,7 +57,7 @@ const cats = [
     phone: "555-555-5555",
     email: "laith@hotmail.com",
     image: {
-      url: "https://images.unsplash.com/photo-1561948955-570b270e7c36?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8Y2F0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60",
+      url: "https://cdn.britannica.com/39/7139-050-A88818BB/Himalayan-chocolate-point.jpg",
       alt: "beautiful cat",
     },
     favoured: false,
