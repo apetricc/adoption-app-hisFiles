@@ -37,26 +37,61 @@ describe("Pets", () => {
     expect(screen.getAllByRole("article")).toStrictEqual([cards[0], cards[2], cards[4]]);
   });
   
-  test("should filter for favoured cats", async () => {
-    //first we need to find all the cards
-    const cards = await screen.findAllByRole("article");
-    // then we need to start clicking favoured on some of the cards with a nested query:  
-    userEvent.click(within(cards[0]).getByRole("button"));
-    userEvent.click(within(cards[3]).getByRole("button"));
-    userEvent.selectOptions(screen.getByLabelText(/favourite/i), "favoured");
-    expect(screen.getByRole("article")).toStrictEqual(cards[0], cards[3]);
-  });
+  // test("should filter for favoured cats", async () => {
+  //   //first we need to find all the cards
+  //   const cards = await screen.findAllByRole("article");
+  //   // then we need to start clicking favoured on some of the cards with a nested query:  
+  //   userEvent.click(within(cards[0]).getByRole("button"));
+  //   userEvent.click(within(cards[3]).getByRole("button"));
+  //   userEvent.selectOptions(screen.getByLabelText(/favourite/i), "favoured");
+  //   expect(screen.getAllByRole("article")).toStrictEqual(cards[0], cards[3]);
+  // });
 
-  test("should filter for not favoured cats", async () => {
-    //first we need to find all the cards
-    const cards = await screen.findAllByRole("article");
-    // then we need to start clicking favoured on some of the cards with a nested query:  
-    userEvent.click(within(cards[0]).getByRole("button"));
-    userEvent.click(within(cards[3]).getByRole("button"));
-    userEvent.selectOptions(screen.getByLabelText(/favourite/i), "not favoured");
-    // this should return every other card that we didn't 'favourite'
-    expect(screen.getByRole("article")).toStrictEqual(cards[1], cards[2], cards[4]);
-  });
+  // test("should filter for not favoured cats", async () => {
+  //   //first we need to find all the cards
+  //   const cards = await screen.findAllByRole("article");
+  //   // then we need to start clicking favoured on some of the cards with a nested query:  
+  //   userEvent.click(within(cards[0]).getByRole("button"));
+  //   userEvent.click(within(cards[3]).getByRole("button"));
+  //   userEvent.selectOptions(screen.getByLabelText(/favourite/i), "not favoured");
+  //   // this should return every other card that we didn't 'favourite'
+  //   expect(screen.getAllByRole("article")).toStrictEqual(cards[1], cards[2], cards[4]);
+  // });
+
+
+//his last two tests: 
+test("should filter for favoured cats", async () => {
+  const cards = await screen.findAllByRole("article");
+  userEvent.click(within(cards[0]).getByRole("button"));
+  userEvent.click(within(cards[3]).getByRole("button"));
+
+  userEvent.selectOptions(screen.getByLabelText(/favourite/i), "favoured");
+
+  expect(screen.getAllByRole("article")).toStrictEqual([cards[0], cards[3]]);
+});
+
+test("should filter for not favoured cats", async () => {
+  const cards = await screen.findAllByRole("article");
+  userEvent.click(within(cards[0]).getByRole("button"));
+  userEvent.click(within(cards[3]).getByRole("button"));
+
+  userEvent.selectOptions(
+    screen.getByLabelText(/favourite/i),
+    "not favoured"
+  );
+
+  expect(screen.getAllByRole("article")).toStrictEqual([
+    cards[1],
+    cards[2],
+    cards[4],
+  ]);
+});
+
+
+
+
+
+
 
 });
 

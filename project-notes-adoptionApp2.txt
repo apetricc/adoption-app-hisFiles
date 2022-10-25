@@ -854,6 +854,176 @@ our test with notes:
 
 v51 --
 now we will add the logic to make our favoured/not favoured tests pass 
+It will be a little less trivial than the gender filter; 
+
+1. we're going to get the "setCats" function, and pass it to the 'Cards' JSX element within the 'Pets.js'
+   --> we also have to pass it into the Cards.js file where we declare the 'const Cards' like this: const Cards = ({ cats, setCats }) => { .......
+
+2. add a function called "updateFavourite" in our "Cards.js"   
+
+            const updateFavourite = (index, favoured) => {
+                    //initially gets the value of the cats array... we use the 'spread' operator prefix--> "..."
+                    const updatedCats = [...cats]; 
+                    // update the array at that index with the favoured value that was passed to us; 
+                    updatedCats[index].favoured = favoured; 
+                    // then we set the cats to the updated array, and this way we can update the favourite status when it gets changed 
+                    setCats(updatedCats)
+                }
+
+3. Then we have to pass this function into the 'Cards' component, b/c this is where we're gonna call this function; 
+
+4. we also have to pass in the index to 'Cards' ...
+as we declare a new 'Cards' component, we pass in a map of the 'cats' array/data; 
+this lets us iterate over the array I believe... (?)
+In doing this, we have to call an anonymous function, which we pass in 2 things now--> "cat" & "index"
+I think the "cat" component is just the singular that we use to iterate on the map;
+and now we want to pass in the "index" as well so we can access it later with the "updateFavourite" function; 
+and it looks like the syntax of iterating on the "cats" we declare the properties, 
+and we set them to the values of the props in our singular "cat" like this --> name={cat.name}
+and in a similar way we assign the index -->  index={index}
+
+5. we need to go into the "Card" component
+    we need to pass in the index & updateFavourite function to our new "Card"
+    and for our "toggleFavoured" function, we want to call "updateFavourite(index, !isFavoured)"
+    which passes the index of the "Card" 
+    and toggles the "isFavoured" value true/false
+
+like this------------------->
+
+const Card = ({ name, phone, email, image, favoured, index, updateFavourite }) => {
+    //setting up a localState w/ initial value from our props that came in with anon func
+    const [isFavoured, setIsFavoured] = useState(favoured);
+    const toggleFavoured = () => {
+        updateFavourite(index, !isFavoured)
+        setIsFavoured(!isFavoured);
+    };
+
+
+
+
+6. We also added a console.log(cats)  after our declaration of the "Pets" component, 
+   so when we click on something, "Pets" gets rendered again, and this will call our console.log 
+   & give us the (hopefully) updated values of the cats array;
+   * note that we didn't need to create a duplicate array this time, b/c this property "isFavoured"
+   is designed to be used this way, and it's okay with this property...
+   as far as a breakdown of why this is okay and not with male/female... I'm not 100% sure at this point, 
+   but we can circle back to this;
+
+
+------------
+@5.02 of v51 
+NOW----- some of our tests should fail;
+These 3 fail: 
+● Pets › should filter for not favoured cats
+● Pets › should filter for favoured cats
+● Card › Should toggle heart status
+
+B/c we passed in a new prop "updateFavourite" to our "Cards" component, which in turn gets called by the "Card" component, 
+we ALSO have to update our "Card.test.js" file, and update our test with this prop as well;
+
+so we went from this: 
+                        const cardProps = {
+                            name: "Sydney",
+                            phone: "555-555-5555",
+                            email: "drew@gmail.com",
+                            image: {
+                                url: "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_2x1.jpg", alt: "cute cat"
+                            },
+                            favoured: false
+                        }
+
+to: 
+
+                        const cardProps = {
+                            name: "Sydney",
+                            phone: "555-555-5555",
+                            email: "drew@gmail.com",
+                            image: {
+                                url: "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_2x1.jpg", alt: "cute cat"
+                            },
+                            favoured: false,
+                            updateFavourite: () => {},
+                            index: 1,
+                        }
+
+He doesn't really go into why we just set it as an empty function & index of 1, 
+but this should bring us down to only 2 failed tests;
+
+----------------------
+in "Pets.js" 
+
+we have to pass in the "favoured" property, which we can initially set to "any" 
+like this: 
+                const Pets = () => {
+
+                const [cats, setCats] = useState([])
+                const [filteredCats, setFilteredCats] = useState([]);
+                const [filters, setFilters] = useState({
+                    gender: "any",
+                    favoured: "any"
+                });
+
+then, in our "useEffect" regarding the filters, we add an IF block
+
+if(filters.favoured !== "any") {
+    //do something similar to what we did when we filtered by gender
+}
+
+we tried that and it didn't work  -- why??
+B/c we need to update the "favoured" inside the "Filter" component as well
+and add another 'onChange' function in the "select" div of "Filter.js" 
+we can use a ternary operator, (even though he put them in the wrong order and gave up on it)
+like this: 
+            onChange={(e) => {
+                setFilters({
+                    ...filters,
+                    favoured: e.target.value === "favoured" ? true : false,
+                });
+            }}
+
+but let's see how else we can accomplish the same thing;
+
+We moved this logic over to Pets.js in the 'useEffect' for the filters like this --> 
+
+                if(filters.favoured !== "any") {
+                    // our first try: 
+                            //debug: 
+                    catsFiltered = catsFiltered.filter(
+                    (cat) => {
+                        console.log(cat.favoured, filters.favoured, cat.favoured === filters.favoured);
+                        return  (cat.favoured === (filters.favoured === "favoured" ? true : false));
+                    }
+                );
+
+This works, but maybe we'll refactor it later to keep the logic inside the 'Filter' component...
+and the next video's title is 'fixing a typo' so we'll see in v52--WE ARE ALMOST DONE!!
+
+v52 --
+in "Pets.test.js" we had a typo in the expect/assert for test("should filter for favoured cats" ....
+we had `getByRole("article")`
+and we needed to have `getAllByRole("article")`  b/c we are looking at more than one element, & if we get more than one
+with the standard "getBy" test/expect/assert ---> error  
+
+same thing for the other test as well, test("should filter for not favoured cats"
+
+
+All our tests should pass now, but I am AGAIN getting this darn error: 
+● Test suite failed to run
+
+    TypeError: Converting circular structure to JSON
+
+it's something in the last two tests (that we just 'fixed') in Pets.test.js
+
+I can try pasting in his code and see if that fixes it ...
+and his tests do work, so maybe I still have another typo in there somewhere, 
+let's find out what it is and then move on to v53!
+
+
+
+v53 --
+
+
+
 
 
 

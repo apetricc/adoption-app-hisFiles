@@ -1,7 +1,7 @@
 import "./Pets.css"
 import Filter from "../Filter/Filter"
 import Cards from "../Cards/Cards"
-import cats from "../../mocks/cats.json"
+// import cats from "../../mocks/cats.json"
 import axios from "axios"
 import { useEffect, useState } from "react"
 //@6.14 of v43 he is doing the axios install / import
@@ -11,10 +11,11 @@ const Pets = () => {
   const [cats, setCats] = useState([])
   const [filteredCats, setFilteredCats] = useState([]);
   const [filters, setFilters] = useState({
-    gender: "any"
+    gender: "any",
+    favoured: "any"
   });
-  console.log("filters: ");
-  console.log(filters);
+  // console.log("cats: ");
+  // console.log(cats);
 
   const fetchCats = async () => {
     const response = await axios.get("http://localhost:4000/cats");
@@ -31,6 +32,18 @@ const Pets = () => {
     if(filters.gender !== "any") {
       catsFiltered = catsFiltered.filter(cat => cat.gender === filters.gender);
     }
+    if(filters.favoured !== "any") {
+        // our first try: 
+              //debug: 
+      catsFiltered = catsFiltered.filter(
+        (cat) => {
+          console.log(cat.favoured, filters.favoured, cat.favoured === filters.favoured);
+          return  (cat.favoured === (filters.favoured === "favoured" ? true : false));
+        }
+     );     
+      
+
+    }
     setFilteredCats(catsFiltered);
   }, [filters]);
 
@@ -40,7 +53,7 @@ const Pets = () => {
     <div className="container">
       <div className="app-container">
         <Filter filters={filters} setFilters={setFilters}/>
-        <Cards cats={filteredCats} />
+        <Cards cats={filteredCats} setCats={setCats}/>
       </div>
 
     </div>

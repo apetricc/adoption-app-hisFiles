@@ -4,12 +4,14 @@ import heartOutlined from "../../svgs/heartOutlined.svg"
 import "./Card.css";
 
 // src/svgs/heartFilled.svg
-const Card = ({ name, phone, email, image, favoured }) => {
+const Card = ({ name, phone, email, image, favoured, index, updateFavourite }) => {
     //setting up a localState w/ initial value from our props that came in with anon func
     const [isFavoured, setIsFavoured] = useState(favoured);
     const toggleFavoured = () => {
+        updateFavourite(index, !isFavoured)
         setIsFavoured(!isFavoured);
     };
+
     return (
         <article className="card">
             <div className="card-header">

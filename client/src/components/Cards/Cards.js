@@ -2,12 +2,24 @@
 import Card from "../Card/Card"
 import "./Cards.css";
 //we'll probably be getting an input array
-const Cards = ({ cats }) => {
+const Cards = ({ cats, setCats }) => {
+    // take in the index of object we want to update, and whatever the favoured status is true/false
+    const updateFavourite = (index, favoured) => {
+        //initially gets the value of the cats array... we use the 'spread' operator prefix--> "..."
+        const updatedCats = [...cats]; 
+        // I think this lets us edit the values more easily..? Although I don't know this sytax too well;
+        // but we update the index passed in w/ the favoured status passed in
+        updatedCats[index].favoured = favoured; 
+        //then we pass the updated array to setCats, which updates our cats array; 
+        // We also have to call this function in the Cards JSX, where we want to call this function;
+        setCats(updatedCats)
+    }
+
     return (
         <div>
             {/* return ( */}
             <div className="pet-cards-container">
-                {cats.map((cat) => {
+                {cats.map((cat, index) => {
                     return <Card
                         key={cat.id}
                         name={cat.name}
@@ -15,6 +27,8 @@ const Cards = ({ cats }) => {
                         email={cat.email}
                         image={cat.image}
                         favoured={cat.favoured}
+                        updateFavourite={updateFavourite}
+                        index={index}
                     />
                 })}
             </div>
