@@ -1,3 +1,5 @@
+import "./Filter.css"
+
 const Filter = ({filters, setFilters}) => <div className="pet-filter-container">
     <div className="filter-container">
         <label htmlFor="favourite">Favourite</label>

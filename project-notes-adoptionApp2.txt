@@ -1021,14 +1021,151 @@ let's find out what it is and then move on to v53!
 
 
 v53 --
+time to complete our testing suite by testing for 
+'filter by favoured && gender'
+
+in Pets.test.js
+
+so made our last test where we select 'favoured' on a male & a female cat, 
+then we select the 'male' from the 'gender' select drop down
+& select 'favoured' from the 'favourite' select drop down
+
+then we expect/assert that we only get back the one card that should remain of the two; 
+
+This pretty much tests all the functionality of our app! and it passes, so I guess we're done
+expect we can refactor & clean up our app a bit; 
+
+and fix the styling/spacing issues in the app; 
+
+v54 -- 
+To fix the styling on our app we need to create a Filter.css file; 
+that i already seem to have..
+
+I wasn't actually using it though, we needed to add the import in "Filter.js" like this: 
+import "./Filter.css"
+
+& now there is some padding around the filter so it all looks better 👍
+
+v55 --
+refactor our code to use the "context" API 
+I don't know what this is, so sounds interesting; 
+
+So the way that we'll manage state throughout our app will be through using this context API; 
+Instead of being passed in from one component to another component (by props); 
+This shouldn't change the functionality of our Application...
+only the implementation details
+--> So our tests should still pass, right? B/c we're not testing the implementation, rather, 
+we are testing how the app works as the user interacts with it (as we should be testing it);
+
+in "Pets.js"
+so import "createContext" from "react" 
+
+then we declare a new context called "PetsContext", & we pass in 
+cats: [],
+setCats: () => {}
+
+like this: 
+
+        const PetsContext = createContext({
+            cats: [],
+            setCats: () => {}
+        });
+
+Then we wrap the 'Filter' & 'Cards' components with a "context provider"
+and we also need to provide the values that match where we declared the context 
+with "createContext"
+we can specify the values we pass in here, and we want to use the "filteredCats" useState
+b/c this is the array with all the filters applied (the cats we want to show respecting the filters)
+and "setCats" we just use "setCats" ... b/c I guess this is the 'setter' part of the useState (?)
+like this: 
+            return (
+                <div className="container">
+                <div className="app-container">
+                    <PetsContext.Provider value={{ cats: filteredCats, setCats }}>
+                        <Filter filters={filters} setFilters={setFilters}/>
+                        <Cards cats={filteredCats} setCats={setCats}/>
+                    </PetsContext.Provider>  
+                </div>
+
+                </div>
+            )
+
+Then, to actually USE this context, we need to export the "PetsContext" from "Pets.js"
+like this: 
+            export const PetsContext = createContext({
+            cats: [],
+            setCats: () => {}
+            });
+
+and then we can access this context ('cats' & 'setCats') in "Cards.js" 
+by using the "useContext" hook (which should get auto-imported)
+like this: 
+            const { cats, setCats } = useContext(PetsContext);
+
+Since we will have this useContext, we can get rid of the props we were passing in to 'Cards.js'
+
+from: 
+                const Cards = ({ cats, setCats }) => { .....
+            
+to: 
+                const Cards = () => {  ........
+
+and remove them from the 'Cards' JSX in 'Pets.js'
+from: 
+        <Cards cats={filteredCats} setCats={setCats}/>
+to: 
+        <Cards />
+
+And everything should still work okay ...
+
+----------
+
+So now we want to do the same thing for the 'Card.js'/ Card component 
+
+we will add the 'useContext' hook inside 'Card.js' 
+& make sure everything auto-imports--easy way is to copy paste it in, 
+remove a letter & let it autocomplete & autoimport them; 
+
+const { cats, setCats } = useContext(PetsContext);
+
+but he says we only care about the "setCats" inside 'Card'
+so we can remove 'cats' 
+
+const { setCats } = useContext(PetsContext);
+
+and move the 'updateFavourite' function from 'Cards' ---> into 'Card'
+
+        const updateFavourite = (index, favoured) => {
+            const updatedCats = [...cats]; 
+            updatedCats[index].favoured = favoured; 
+            setCats(updatedCats)
+        }
+
+and then we don't need the 'updateFavourite' property as we declare our 'Card' any more, so remove that 
+from: 
+        const Card = ({ name, phone, email, image, favoured, index, updateFavourite }) => { ........
+to: 
+        const Card = ({ name, phone, email, image, favoured, index }) => {
+
+so then we don't need to pass in 'updateFavourite' in (from?) 'Cards.js' 
+and then we can remove 'setCats' from the context altogether (inside 'Cards.js')
+we still need both the cats & setCats context for 'Card.js'
+
+and everything should still work (in the app anyway) now, which it does, so that's good; 
+The tests may have suffered, so lets try those also; 
+looks like 2 tests are now failing despite our app seeming to work fine see:
+ 
+ FAIL  src/components/Cards/__test__/Cards.test.js
+● Cards › should render five card components
 
 
+ (src/components/Card/__test__/Card.test.js:83:20)
+ ● Card › Should toggle heart status
 
-
-
-
-
-
+ v56 --  'adding a mock provider to our tests'
+ 
+ THE LAST VIDEO YOU GUYS!
+ Now we'll talk about why these tests failed and what to do about it; 
 
 
 

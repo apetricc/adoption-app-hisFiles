@@ -87,7 +87,26 @@ test("should filter for not favoured cats", async () => {
   ]);
 });
 
-
+test("should filter for favoured male cats", async () => {
+  const cards = await screen.findAllByRole("article");
+  //clicking on a male & female cat's favoured button (the heart button)
+  userEvent.click(within(cards[0]).getByRole("button"));
+  userEvent.click(within(cards[3]).getByRole("button"));
+  // we want to then set the 'favoured' filter to filter by 'favoured' only
+  userEvent.selectOptions(
+    screen.getByLabelText(/favourite/i),
+    "favoured"
+  );
+  // then we want to also filter by the gender
+  userEvent.selectOptions(
+    screen.getByLabelText(/gender/i),
+    "male"
+  );
+// last part is expect/assert that we get back card @ index 3 'Kevin'
+  expect(screen.getAllByRole("article")).toStrictEqual([
+    cards[3],
+  ]);
+});
 
 
 

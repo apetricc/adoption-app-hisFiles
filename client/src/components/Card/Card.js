@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import heartFilled from "../../svgs/heartFilled.svg"
 import heartOutlined from "../../svgs/heartOutlined.svg"
+import { PetsContext } from "../Pets/Pets";
 import "./Card.css";
 
 // src/svgs/heartFilled.svg
-const Card = ({ name, phone, email, image, favoured, index, updateFavourite }) => {
+const Card = ({ name, phone, email, image, favoured, index }) => {
+
+    const { cats, setCats } = useContext(PetsContext);
+
+        const updateFavourite = (index, favoured) => {
+            const updatedCats = [...cats]; 
+            updatedCats[index].favoured = favoured; 
+            setCats(updatedCats)
+        }
+
     //setting up a localState w/ initial value from our props that came in with anon func
     const [isFavoured, setIsFavoured] = useState(favoured);
     const toggleFavoured = () => {
