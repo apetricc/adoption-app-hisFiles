@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react"
 import Card from "../Card"
 import userEvents from "@testing-library/user-event";
+import { PetsContext } from "../../Pets/Pets";
+import cats from "../../../mocks/cats.json"
 
 //set up a var with default props for our Card components:
 const cardProps = {
@@ -15,15 +17,34 @@ const cardProps = {
     index: 1,
 }
 
+const renderCardComponentWithProvider = (props) => {
+    render(
+        <PetsContext.Provider value={{cats, setCats: () => {}}}>
+            <Card {...props} />
+        </PetsContext.Provider>
+    )
+};
+
 describe("Card", () => {
     test("should show name of cat", () => {
-        //render the Card & pass in some props
-        render(
-            <Card
-                //destructure the props from a variable instead of manually adding the props here:
-                {...cardProps}
-            />
-        )//render
+        // render the Card & pass in some props
+        // render(
+        //     <Card
+        //         //'spread' the props from a variable instead of manually adding the props here:
+        //         {...cardProps}
+        //     />
+        // )//render
+
+        //use the PetsContext instead of just render the Card: 
+        // render(
+        //     <PetsContext.Provider value={{cats, setCats: () => {}}}>
+        //         <Card {...cardProps} />
+        //     </PetsContext.Provider>
+        // )
+
+        //use the helper function instead: 
+        renderCardComponentWithProvider(cardProps);    
+
         expect(
             screen.getByRole("heading", {
                 name: /sydney/i
@@ -32,53 +53,45 @@ describe("Card", () => {
     });
 
     test("should show phone number for cat", () => {
-        render(
-            <Card
-                //if we want to rename one of the props, we do it like this:
-                {...cardProps}
-            //name: "newName"
-            />
-        )//render
+        // render(<Card
+        //         //if we want to rename one of the props, we do it like this:
+        //         {...cardProps}
+        //     //name: "newName"
+        //     /> )//render
+        renderCardComponentWithProvider(cardProps);
         expect(
             // we can get this by role but we're trying getByText()
             screen.getByText(/555-555-5555/i)).toBeInTheDocument();
     });
 
     test("should show email for cat", () => {
-        render(
-            <Card
-                {...cardProps}
-            />
-        )//render
+        renderCardComponentWithProvider(cardProps);
         expect(
             screen.getByText(/drew@gmail.com/i)).toBeInTheDocument();
     });
 
     test("should get the picture of cat", () => {
-        render(
-            <Card
-                {...cardProps}
-            />
-        )//render
+        renderCardComponentWithProvider(cardProps);
         //get the element by the alt text, then check that the element is the url in our Card component
         expect(screen.getByAltText(/cute cat/i).src).toBe(cardProps.image.url);
     });
 
     test("should show outlined heart", () => {
-        render(<Card {...cardProps} />);
+        renderCardComponentWithProvider(cardProps);
         expect(screen.queryByAltText(/filled heart/i)).not.toBeInTheDocument();
         expect(screen.getByAltText(/outlined heart/i)).toBeInTheDocument();
     });
 
     test("should show filled heart", () => {
         //use default props except overwrite the 'favoured' prop:
-        render(<Card {...cardProps} favoured = {true} />);
+        // render(<Card {...cardProps} favoured = {true} />);
+        renderCardComponentWithProvider({...cardProps, favoured: true});
         expect(screen.queryByAltText(/outlined heart/i)).not.toBeInTheDocument();
         expect(screen.getByAltText(/filled heart/i)).toBeInTheDocument();
     });
 
     test("Should toggle heart status", () => {
-        render(<Card {...cardProps} />);
+        renderCardComponentWithProvider(cardProps);
         //first click should fill heart
         userEvents.click(screen.getByRole("button"));
         expect(screen.queryByAltText(/outlined heart/i)).not.toBeInTheDocument();

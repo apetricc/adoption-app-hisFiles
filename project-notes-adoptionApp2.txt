@@ -1166,6 +1166,76 @@ looks like 2 tests are now failing despite our app seeming to work fine see:
  
  THE LAST VIDEO YOU GUYS!
  Now we'll talk about why these tests failed and what to do about it; 
+He actually mentions what I have already learned at this point, which is that
+we can run individual files with 'npm run test' by appending the file name
+at the end like 'npm run test myFile.js'
+so let's do that for Pets.test.js
+npm run test Pets.test.js  --> pass
+npm run test Filter.test.js  --> pass
+npm run test Cards.test.js  --> 2 fail, can't find the cards is the root problem, 
+
+test("should render five card components", () => {
+       6 |         render(<Cards cats={cats} />);
+    >  7 |         expect(screen.getAllByRole("article").length).toBe(5);
+         |                       ^
+       8 |     });
+       9 | });
+
+and this makes sense, b/c in our test we were passing the cards as props, 
+and we have updated the app so the cards are in the contextProvider
+
+So we need to refactor our tests to utilize the contextProvider rather than props
+
+This is a sort of red herring, our test is still testing the functionality of the app, 
+we just had the test written to use our implementation... I guess
+We always want to test the functionality though! 
+
+so where we had in Cards.test.js: 
+                render(<Cards cats={cats} />);
+
+we can use the PetsContext like this: 
+        render(<PetsContext.Provider value={{
+            cats, 
+            setCats: () => {},
+        }}>
+            <Cards />
+        </PetsContext.Provider>)
+
+now the 'Cards.test.js' is okay, so we try 'Card.test.js' 
+npm run test Card.test.js
+
+and that has a failing test in there; 
+
+we had: 
+       // render the Card & pass in some props
+        render(
+            <Card
+                //spread the props from a variable instead of manually adding the props here:
+                {...cardProps}
+            />
+        )//render
+
+
+we could do this each time we want to render a card: 
+        //use the PetsContext instead of just render the Card: 
+        render(
+            <PetsContext.Provider value={{cats, setCats: () => {}}}>
+                <Card {...cardProps} />
+            </PetsContext.Provider>
+        )
+
+
+-- BUT -- 
+
+this has to be done each time we render a Card... 
+so we can write a helper function to make it easier; 
+
+
+
+
+
+
+
 
 
 
